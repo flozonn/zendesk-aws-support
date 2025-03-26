@@ -1,9 +1,10 @@
 <div align="left" style="position: relative;">
-<img src="https://000009.awsstudygroup.com/images/serviceicon.png?featherlight=false&width=10pc" align="right" width="20%" style="margin: -20px 0 0 20px;">
 <h1>ZENDESK-AWS-SUPPORT</h1>
 <p align="left">
 	<em>Bridging Support, Powering Solutions!</em>
 </p>
+<img src="https://000009.awsstudygroup.com/images/serviceicon.png?featherlight=false&width=10pc" align="right" width="15%" style="margin: -20px 0 0 20px;">
+
 <p align="left">
 	<img src="https://img.shields.io/github/license/flozonn/zendesk-aws-support?style=plastic&logo=opensourceinitiative&logoColor=white&color=546eeb" alt="license">
 	<img src="https://img.shields.io/github/last-commit/flozonn/zendesk-aws-support?style=plastic&logo=git&logoColor=white&color=546eeb" alt="last-commit">
@@ -271,8 +272,6 @@ From the Zendesk Admin Panel, create **3 triggers** (under *Objects and Rules*).
       "zd_ticket_latest_public_comment": "{{ticket.latest_public_comment_html}}"
     }
     ```
-
-And finally link the webhooks and triggers.
 ---
 
 ## 🔰 Contributing
