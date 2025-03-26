@@ -16,3 +16,13 @@ clean:
 	rm -f $(ZIP_FILES)
 	terraform destroy -auto-approve
 
+codescanner:
+	bandit -r lambdaAwsToZendesk -f json > codescans/lambdaAwsToZendesk.json ; \
+	bandit -r lambdaWebhooksToEventBridge -f json > codescans/lambdaWebhooksToEventBridge.json ; \
+	bandit -r lambdaZendeskToAws -f json > codescans/lambdaZendeskToAws.json ; \
+	detect-secrets scan > codescans/.secrets.baseline ; \
+	checkov -d platform -o json > codescans/terraform.json ; \
+	semgrep --config=auto . --json > codescans/semgrep_report.json
+
+
+
