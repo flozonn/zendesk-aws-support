@@ -27,11 +27,12 @@
 - [📍 Overview](#-overview)  
 - [👾 Features](#-features)  
 - [📁 Project Structure](#-project-structure)  
-  - [📂 Project Index](#-project-index)  
+  - [Project Index](#-project-index) 
+  - [Project Architecture](#-project-architecture)   
 - [🚀 Getting Started](#-getting-started)  
-  - [☑️ Prerequisites](#-prerequisites)  
-  - [⚙️ Installation](#-installation)  
-  - [🤖 Zendesk Configuration](#-zendesk-configuration)  
+  - [Prerequisites](#-prerequisites)  
+  - [Installation](#-installation)  
+  - [Zendesk Configuration](#-zendesk-configuration)  
 - [🔰 Contributing](#-contributing)
 
 ---
@@ -154,6 +155,9 @@ The zendesk-aws-support project is a powerful bridge between Zendesk and AWS, en
 </details>
 
 ---
+### 📂 Project Architecture 
+![architecture diagramm](zendeskResources/zendesk.jpg)
+
 ## 🚀 Getting Started
 
 ### ☑️ Prerequisites
