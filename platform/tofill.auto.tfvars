@@ -1,0 +1,8 @@
+region = "eu-west-1"
+id_lookup_bucket = "case-ids-lookup-123456"
+zendesk_subdomain= "your_subdomain"
+zendesk_admin_email="your_admin_email"
+zendesk_token = "your_api_key"
+webhook_secret_create = "webhook_secret_create"
+webhook_secret_solved = "webhook_secret_create"
+webhook_secret_update = "webhook_secret_create"
