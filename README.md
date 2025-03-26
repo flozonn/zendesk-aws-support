@@ -14,25 +14,24 @@
 <p align="left">
 	<img src="https://img.shields.io/badge/Python-3776AB.svg?style=plastic&logo=Python&logoColor=white" alt="Python">
 	<img src="https://img.shields.io/badge/Terraform-844FBA.svg?style=plastic&logo=Terraform&logoColor=white" alt="Terraform">
+    <img src="https://img.shields.io/badge/AWS-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="Terraform">
+    <img src="https://img.shields.io/badge/-Zendesk-03363D?style=flat&logo=zendesk&logoColor=white"/>
+
 </p>
 </div>
 <br clear="right">
 
 ## 🔗 Table of Contents
 
-- [📍 Overview](#-overview)
-- [👾 Features](#-features)
-- [📁 Project Structure](#-project-structure)
-  - [📂 Project Index](#-project-index)
-- [🚀 Getting Started](#-getting-started)
-  - [☑️ Prerequisites](#-prerequisites)
-  - [⚙️ Installation](#-installation)
-  - [🤖 Usage](#🤖-usage)
-  - [🧪 Testing](#🧪-testing)
-- [📌 Project Roadmap](#-project-roadmap)
+- [📍 Overview](#-overview)  
+- [👾 Features](#-features)  
+- [📁 Project Structure](#-project-structure)  
+  - [📂 Project Index](#-project-index)  
+- [🚀 Getting Started](#-getting-started)  
+  - [☑️ Prerequisites](#-prerequisites)  
+  - [⚙️ Installation](#-installation)  
+  - [🤖 Zendesk Configuration](#-zendesk-configuration)  
 - [🔰 Contributing](#-contributing)
-- [🎗 License](#-license)
-- [🙌 Acknowledgments](#-acknowledgments)
 
 ---
 
