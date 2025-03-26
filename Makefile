@@ -13,8 +13,7 @@ deploy:
 	cd platform && terraform apply -auto-approve
 
 clean:
-	rm -f $(ZIP_FILES)
-	terraform destroy -auto-approve
+	cd platform && terraform destroy -auto-approve
 
 codescanner:
 	bandit -r lambdaAwsToZendesk -f json > codescans/lambdaAwsToZendesk.json ; \
