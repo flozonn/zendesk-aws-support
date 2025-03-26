@@ -83,13 +83,6 @@ The zendesk-aws-support project is a powerful bridge between Zendesk and AWS, en
 ### 📂 Project Index
 <details open>
 	<summary><b><code>ZENDESK-AWS-SUPPORT/</code></b></summary>
-	<details> <!-- __root__ Submodule -->
-		<summary><b>__root__</b></summary>
-		<blockquote>
-			<table>
-			</table>
-		</blockquote>
-	</details>
 	<details> <!-- lambdaZendeskToAws Submodule -->
 		<summary><b>lambdaZendeskToAws</b></summary>
 		<blockquote>
