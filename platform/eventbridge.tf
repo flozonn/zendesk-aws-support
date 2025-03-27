@@ -36,12 +36,11 @@ resource "aws_cloudwatch_event_target" "event_listener_target" {
 resource "aws_cloudwatch_event_rule" "support_case_rule" {
   name           = "support_case_rule"
   description    = "Triggers when an AWS support case event occurs"
-  event_bus_name = aws_cloudwatch_event_bus.webhook_event_bus.name
+  event_bus_name = "default"
   event_pattern = jsonencode({
     source = [
       "aws.support"
-    ],
-    detail-type = ["*"]
+    ]
   })
 }
 
@@ -59,7 +58,7 @@ resource "aws_cloudwatch_event_target" "support_case_target" {
   rule           = aws_cloudwatch_event_rule.support_case_rule.name
   target_id      = "support-case-listener"
   arn            = aws_lambda_function.support_case_monitor_lambda.arn
-  event_bus_name = aws_cloudwatch_event_bus.webhook_event_bus.name
+  event_bus_name = "default"
 }
 
 

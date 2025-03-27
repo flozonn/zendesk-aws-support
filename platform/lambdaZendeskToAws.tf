@@ -53,7 +53,7 @@ resource "aws_iam_policy" "lambda_eventbridge_policy_listener" {
         "s3:GetObjectVersion",
         "s3:ListBucket"
       ],
-      "Resource": "${aws_s3_bucket.case_ids_lookup.arn}/*"
+      "Resource": "${aws_s3_bucket.case_id_lookup.arn}/*"
     }
   ]
 }
@@ -89,7 +89,7 @@ resource "aws_lambda_function" "event_listener_lambda" {
   environment {
     variables = {
       EVENT_BUS_ARN      = aws_cloudwatch_event_bus.webhook_event_bus.arn
-      BUCKET_AWS_ZENDESK = aws_s3_bucket.case_ids_lookup.id
+      BUCKET_AWS_ZENDESK = aws_s3_bucket.case_id_lookup.id
     }
   }
 }

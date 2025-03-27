@@ -35,7 +35,7 @@ resource "aws_iam_policy" "lambda_support_case_policy" {
         "events:*",
         "events:GetEventBus"
       ],
-     "Resource": "${aws_cloudwatch_event_bus.webhook_event_bus.arn}"
+     "Resource": "arn:aws:events:eu-west-1:619071325606:event-bus/default"
     },
     {
       "Effect": "Allow",
@@ -45,6 +45,15 @@ resource "aws_iam_policy" "lambda_support_case_policy" {
         "logs:PutLogEvents"
       ],
       "Resource": "arn:aws:logs:eu-west-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/support_case_monitor:*"
+    },
+        {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:eu-west-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/lambdaAwsToZendesk:*"
     },
        {
       "Effect": "Allow",
@@ -56,7 +65,7 @@ resource "aws_iam_policy" "lambda_support_case_policy" {
         "s3:GetObjectVersion",
         "s3:ListBucket"
       ],
-      "Resource": "${aws_s3_bucket.case_ids_lookup.arn}/*"
+      "Resource": "${aws_s3_bucket.case_id_lookup.arn}/*"
     },
         {
         "Effect": "Allow",
@@ -76,7 +85,7 @@ resource "aws_iam_role_policy_attachment" "lambda_support_case_attach" {
 
 # CloudWatch log group for Lambda
 resource "aws_cloudwatch_log_group" "lambda_support_case_log" {
-  name              = "/aws/lambda/support_case_monitor"
+  name              = "/aws/lambda/lambdaAwsToZendesk"
   retention_in_days = 7
 }
 
@@ -92,7 +101,7 @@ resource "aws_lambda_function" "support_case_monitor_lambda" {
   environment {
     variables = {
       EVENT_BUS_ARN = aws_cloudwatch_event_bus.webhook_event_bus.arn
-      S3_BUCKET_NAME = aws_s3_bucket.case_ids_lookup.id
+      S3_BUCKET_NAME = aws_s3_bucket.case_id_lookup.id
       ZENDESK_TOKEN = var.zendesk_token
       ZENDESK_SUBDOMAIN = var.zendesk_subdomain
       ZENDESK_ADMIN_EMAIL = var.zendesk_admin_email

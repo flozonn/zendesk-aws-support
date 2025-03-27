@@ -17,8 +17,8 @@ ZENDESK_ADMIN_EMAIL = os.environ['ZENDESK_ADMIN_EMAIL']
 
 def update_zendesk_ticket(ticket_id, comment, solve=False):
 
-    url = f"https://${ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/{ticket_id}.json"
-    auth_string = f"${ZENDESK_ADMIN_EMAIL}/token:{ZENDESK_TOKEN}"
+    url = f"https://{ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/{ticket_id}.json"
+    auth_string = f"{ZENDESK_ADMIN_EMAIL}/token:{ZENDESK_TOKEN}"
     auth_encoded = base64.b64encode(auth_string.encode()).decode()
     
     headers = {
