@@ -4,7 +4,10 @@ import base64
 import logging
 import boto3
 import os
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch_all
 
+patch_all()
 
 S3 = boto3.client('s3')
 

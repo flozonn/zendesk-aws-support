@@ -157,6 +157,7 @@ The zendesk-aws-support project is a powerful bridge between Zendesk and AWS, en
 ---
 ### 📂 Project Architecture 
 ![architecture diagramm](zendeskResources/zendesk.jpg)
+![xray trace](zendeskresources/zendesk-to-aws-trace.png)
 
 ## 🚀 Getting Started
 

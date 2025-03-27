@@ -3,7 +3,10 @@ import boto3
 import logging
 import boto3
 import os
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import patch_all
 
+patch_all()
 LOGGER = logging.getLogger()
 LOGGER.setLevel('INFO')
 

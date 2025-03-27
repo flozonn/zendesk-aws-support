@@ -38,7 +38,20 @@ resource "aws_iam_policy" "eventbridge_policy" {
         "Effect": "Allow",
         "Action": ["support:*"],
         "Resource": "*"
-    }
+    },
+      {
+            "Effect": "Allow",
+            "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets",
+                "xray:GetSamplingStatisticSummaries"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
 
   ]
 }
@@ -64,11 +77,13 @@ resource "aws_lambda_function" "webhook_lambda" {
   function_name    = "webhook_lambda"
   role             = aws_iam_role.lambda_role.arn
   runtime          = "python3.9"
-  handler          = "lambdaWebhooksToEventBridge/lambdaWebhooksToEventBridge.lambda_handler"
-  filename         = "../lambdaWebhooksToEventBridge.zip"
-  source_code_hash = filebase64sha256("../lambdaWebhooksToEventBridge.zip")
+  handler          = "lambdaWebhooksToEventBridge.lambda_handler"
+  filename         = "../lambdaWebhooksToEventBridge/lambdaWebhooksToEventBridge.zip"
+  source_code_hash = filebase64sha256("../lambdaWebhooksToEventBridge/lambdaWebhooksToEventBridge.zip")
 
-
+  tracing_config {
+    mode = "Active"
+  }
   environment {
     variables = {
       EVENT_BUS_ARN         = aws_cloudwatch_event_bus.webhook_event_bus.arn

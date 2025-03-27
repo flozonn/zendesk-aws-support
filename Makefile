@@ -5,12 +5,12 @@ ZIP_FILES = lambdaZendeskToAws.zip lambdaWebhooksToEventBridge.zip lambdaAwsToZe
 all: zip deploy
 
 zip:
-	zip -r lambdaZendeskToAws.zip lambdaZendeskToAws
-	zip -r lambdaWebhooksToEventBridge.zip lambdaWebhooksToEventBridge
-	zip -r lambdaAwsToZendesk.zip lambdaAwsToZendesk
+	cd lambdaZendeskToAws && pip install --target ./package boto3 aws_xray_sdk && cd package && zip -r ../lambdaZendeskToAws.zip . && cd .. && zip lambdaZendeskToAws.zip lambdaZendeskToAws.py
+	cd lambdaAwsToZendesk && pip install --target ./package boto3 aws_xray_sdk && cd package && zip -r ../lambdaAwsToZendesk.zip . && cd .. && zip lambdaAwsToZendesk.zip lambdaAwsToZendesk.py
+	cd lambdaWebhooksToEventBridge && pip install --target ./package boto3 aws_xray_sdk && cd package && zip -r ../lambdaWebhooksToEventBridge.zip . && cd .. && zip lambdaWebhooksToEventBridge.zip lambdaWebhooksToEventBridge.py
 
 deploy:
-	cd platform && terraform apply -auto-approve
+	terraform fmt && cd platform && terraform apply -auto-approve
 
 clean:
 	cd platform && terraform destroy -auto-approve
