@@ -38,11 +38,12 @@ def verify_signature(payload, signature, timestamp):
 
 def lambda_handler(event, context):
     print("hello")
+    print(event)
     signature = event['headers'].get('x-zendesk-webhook-signature', '')
     timestamp = event['headers'].get('x-zendesk-webhook-signature-timestamp', '')
     try:
         return {
-            "isAuthorized": verify_signature(event,signature,timestamp)
+            "isAuthorized": verify_signature(event['body'],signature,timestamp)
         }
     except Exception as e:
         LOGGER.exception('Error handling webhook')
