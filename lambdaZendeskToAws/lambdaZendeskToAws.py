@@ -90,11 +90,11 @@ def lambda_handler(event, context):
     try:
        print("hello")
        print(event)
-       if event['detail'].get('event_type') == "/create":
+       if event['detail-type'] == "create.webhook":
           create_support_case(event)
-       if event['detail'].get('event_type') == "/update":
+       if event['detail-type'] == "update.webhook":
            update_support_case(event)
-       if event['detail'].get('event_type') == "/solved":
+       if event['detail-type'] == "solved.webhook":
            solve_support_case(event)
 
     except Exception as e:

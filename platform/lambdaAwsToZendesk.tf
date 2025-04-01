@@ -1,5 +1,84 @@
 
 # IAM Role for the Lambda
+resource "aws_iam_role" "lambda_role" {
+  name = "lambda_webhook_role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "eventbridge_policy" {
+  name        = "lambda_eventbridge_policy"
+  description = "Policy for Lambda to put events in EventBridge"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+        "Action": [
+        "events:PutEvents",
+        "events:GetEventBus"
+      ],
+       "Resource": "${aws_cloudwatch_event_bus.webhook_event_bus.arn}"
+    }
+    ,
+    {
+        "Effect": "Allow",
+        "Action": ["support:*"],
+        "Resource": "*"
+    },
+      {
+            "Effect": "Allow",
+            "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets",
+                "xray:GetSamplingStatisticSummaries"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+         {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:eu-west-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/HMACAuthorizer:*"
+    }
+
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_eventbridge_attach" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.eventbridge_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 resource "aws_iam_role" "lambda_support_case_role" {
   name = "lambda_support_case_role"
 
