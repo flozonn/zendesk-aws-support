@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "hmac_authorizer" {
-  function_name    = "HMACAuthorizer"
+  function_name    = "ApiAuthorizer"
   role             = aws_iam_role.lambda_role.arn
   runtime          = "python3.9"
   handler          = "lambdaApiAuthorizer.lambda_handler"
@@ -19,15 +19,15 @@ resource "aws_lambda_function" "hmac_authorizer" {
 
 resource "aws_apigatewayv2_authorizer" "hmac_auth" {
   api_id          = aws_apigatewayv2_api.webhook_api.id
-  name            = "HMACAuthorizer"
+  name            = "ApiAuthorizer"
   authorizer_type = "REQUEST"
   authorizer_payload_format_version = "2.0"
   authorizer_uri  = aws_lambda_function.hmac_authorizer.invoke_arn
-  identity_sources = ["$request.header.X-Zendesk-Webhook-Signature","$request.header.X-Zendesk-Webhook-Signature-Timestamp"]
+  identity_sources = ["$request.header.X-Zendesk-Webhook-Signature","$request.header.X-Zendesk-Webhook-Signature-Timestamp","$request.header.Authorization"]
   enable_simple_responses = true 
 }
 
 resource "aws_cloudwatch_log_group" "lambda_authorizer_log" {
-  name              = "/aws/lambda/HMACAuthorizer"
+  name              = "/aws/lambda/ApiAuthorizer"
   retention_in_days = 7
 }

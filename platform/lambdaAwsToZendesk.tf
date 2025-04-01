@@ -61,7 +61,7 @@ resource "aws_iam_policy" "eventbridge_policy" {
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
-      "Resource": "arn:aws:logs:eu-west-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/HMACAuthorizer:*"
+      "Resource": "arn:aws:logs:eu-west-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/ApiAuthorizer:*"
     }
 
   ]
