@@ -12,12 +12,24 @@
 	<img src="https://img.shields.io/github/languages/count/flozonn/zendesk-aws-support?style=plastic&color=546eeb" alt="repo-language-count">
 </p>
 <p align="left">Built with the tools and technologies:</p>
+    <img src="https://img.shields.io/badge/-Zendesk-03363D?style=flat&logo=zendesk&logoColor=white"/>
+ </p>
 <p align="left">
 	<img src="https://img.shields.io/badge/Python-3776AB.svg?style=plastic&logo=Python&logoColor=white" alt="Python">
 	<img src="https://img.shields.io/badge/Terraform-844FBA.svg?style=plastic&logo=Terraform&logoColor=white" alt="Terraform">
-    <img src="https://img.shields.io/badge/AWS-%23FF9900.svg?logo=amazon-web-services&logoColor=white" alt="Terraform">
-    <img src="https://img.shields.io/badge/-Zendesk-03363D?style=flat&logo=zendesk&logoColor=white"/>
-
+  </p>
+  <p align="left">
+    <img src="https://img.shields.io/badge/semgrep-orange"/>
+    <img src="https://img.shields.io/badge/checkov-black?logo=paloaltonetworks"/>
+    <img src="https://img.shields.io/badge/security-bandit-yellow.svg"/>
+      </p>
+        <p align="left">
+    <img src="https://img.shields.io/badge/-lambda-white?logo=awslambda"/>
+    <img src="https://img.shields.io/badge/-S3-white?logo=amazons3"/>
+    <img src="https://img.shields.io/badge/-Support-white?logo=amazonwebservices&logoColor=blue"/>
+    <img src="https://img.shields.io/badge/-EventBridge-white?logo=amazonwebservices&logoColor=blue"/>
+    <img src="https://img.shields.io/badge/-Xray-white?logo=amazonwebservices&logoColor=blue"/>
+  
 </p>
 </div>
 <br clear="right">
