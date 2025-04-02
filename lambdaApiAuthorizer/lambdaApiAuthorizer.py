@@ -17,9 +17,10 @@ LOGGER.setLevel('INFO')
 WEBHOOK_SECRET_CREATE = os.environ['WEBHOOK_SECRET_CREATE'].encode('utf-8')
 WEBHOOK_SECRET_UPDATE = os.environ['WEBHOOK_SECRET_UPDATE'].encode('utf-8')
 WEBHOOK_SECRET_SOLVED = os.environ['WEBHOOK_SECRET_SOLVED'].encode('utf-8')
+BEARER_TOKEN          = os.environ['BEARER_TOKEN']
 
 def verify_signature(bearer):
-    return bearer == "Bearer 123123"
+    return bearer == BEARER_TOKEN
 
 
 
