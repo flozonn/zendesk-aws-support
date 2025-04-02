@@ -25,10 +25,11 @@
       </p>
         <p align="left">
     <img src="https://img.shields.io/badge/-lambda-white?logo=awslambda"/>
-    <img src="https://img.shields.io/badge/-S3-white?logo=amazons3"/>
     <img src="https://img.shields.io/badge/-Support-white?logo=amazonwebservices&logoColor=blue"/>
     <img src="https://img.shields.io/badge/-EventBridge-white?logo=amazonwebservices&logoColor=blue"/>
     <img src="https://img.shields.io/badge/-Xray-white?logo=amazonwebservices&logoColor=blue"/>
+        <img src="https://img.shields.io/badge/-DynamoDB-white?logo=amazondynamodb&logoColor=blue"/>
+                <img src="https://img.shields.io/badge/-API Gateway-white?logo=amazonapigateway&logoColor=blue"/>
   
 </p>
 </div>
@@ -51,7 +52,7 @@
 
 ## 📍 Overview
 
-The zendesk-aws-support project is a powerful bridge between Zendesk and AWS, enabling seamless case management and communication across both platforms. It leverages AWS Lambda functions and EventBridge to handle Zendesk webhooks and AWS support case events, while storing data in an S3 bucket. This open-source solution is ideal for businesses seeking to synchronize their customer support efforts on AWS and Zendesk, enhancing efficiency and response times.
+The zendesk-aws-support project is a powerful bridge between Zendesk and AWS, enabling seamless case management and communication across both platforms. It leverages AWS Lambda, API gateway and EventBridge to handle Zendesk webhooks and AWS support case events, while storing ID lookup data in a DynamoDB tablle. This open-source solution is ideal for businesses seeking to synchronize their customer support efforts on AWS and Zendesk, enhancing efficiency and response times.
 
 ---
 
@@ -59,9 +60,9 @@ The zendesk-aws-support project is a powerful bridge between Zendesk and AWS, en
 
 |      | Feature         | Summary       |
 | :--- | :---:           | :---          |
-| ⚙️  | **Architecture**  | <ul><li>Event-driven architecture with AWS Lambda functions and EventBridge.</li><li>Uses AWS S3 for data storage and retrieval.</li><li>Codebase is primarily written in `Terraform` and `Python`.</li></ul> |
+| ⚙️  | **Architecture**  | <ul><li>Event-driven architecture with AWS Lambda functions and EventBridge.</li><li>Uses AWS DynamoDB for data storage and retrieval.</li><li>Codebase is primarily written in `Terraform` and `Python`.</li></ul> |
 | 🔩 | **Code Quality**  | <ul><li>Code is modular and well-structured, with clear separation of concerns.</li><li>Scripts are written in Python, following good coding practices.</li><li>Terraform scripts are used for infrastructure as code, ensuring reproducibility and consistency.</li></ul> |
-| 🔌 | **Integrations**  | <ul><li>Integrates with Zendesk for ticket management.</li><li>Uses AWS services like Lambda, S3, EventBridge, and IAM.</li><li>Webhooks are used for real-time updates between Zendesk and AWS.</li></ul> |
+| 🔌 | **Integrations**  | <ul><li>Integrates with Zendesk for ticket management.</li><li>Uses AWS services like Lambda, DynamoDB, EventBridge, and IAM.</li><li>Webhooks are used for real-time updates between Zendesk and AWS.</li></ul> |
 | 🧩 | **Modularity**    | <ul><li>Codebase is divided into separate Python scripts and Terraform files for different functionalities.</li><li>Each Lambda function has its own dedicated script and Terraform file.</li><li>Variables are defined in a separate `variables.tf` file for easy configuration.</li></ul> |
 | 🛡️ | **Security**      | <ul><li>Webhook signatures are verified for authenticity.</li><li>Uses IAM roles and policies for secure access to AWS resources.</li><li>S3 bucket is private, ensuring data security.</li></ul> |
 | 📦 | **Dependencies**  | <ul><li>Project uses `Terraform` for infrastructure as code.</li><li>Python scripts are used for AWS Lambda functions.</li><li>`.terraform.lock.hcl` file indicates the use of Terraform 0.14 or later.</li></ul> |
@@ -203,7 +204,7 @@ Install zendesk-aws-support using one of the following methods:
 ❯ make zip
 ❯ make deploy
 ```
-4. Retrieve the function URL after deployment
+4. Retrieve the API gateway URL after deployment
 
 
 
@@ -215,9 +216,9 @@ First create 2 additional custom fields in the Zendesk form to gather data about
 - Field named Category code should be a drop down field with all the possible categoryCodes for a give serviceCode (cf file in /zendeskResources directory).
 #### 2.Create Webhooks
 Then create 3 webhooks:
-- aws support - solved, endpoint = https://your_function_url/solved 
-- aws support - update, endpoint = https://your_function_url/update 
-- aws support - create , endpoint = https://your_function_url/create 
+- aws support - solved, endpoint = https://your_gateway_url/solved 
+- aws support - update, endpoint = https://your_gateway_url/update 
+- aws support - create , endpoint = https://your_gateway_url/create 
 
 ####  3.Create Triggers
 From the Zendesk Admin Panel, create **3 triggers** (under *Objects and Rules*).
