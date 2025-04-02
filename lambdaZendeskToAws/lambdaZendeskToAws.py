@@ -11,16 +11,21 @@ LOGGER = logging.getLogger()
 LOGGER.setLevel('INFO')
 
 SUPPORT = boto3.client('support')
-S3 = boto3.client('s3')
+DYNAMO = boto3.client('dynamodb')
 
-def get_s3_object( key):
-    try:
-        response = S3.get_object(Bucket=os.environ['BUCKET_AWS_ZENDESK'], Key=key)
-        content = response["Body"].read().decode("utf-8") 
-        return content
-    except Exception as e:
-        print("❌ Error when retrieving data from S3:", str(e))
-        return None
+
+def get_lookup_id(key):
+    response = DYNAMO.get_item( TableName= os.environ['TABLE_NAME'], Key={'id-z':{'S':key}})
+    print("GET ID LOOKUP")
+    print(response)
+    return response['Item']['id-a']['S']
+
+
+def put_lookup_id(keyA,keyz):
+    response = DYNAMO.put_item(TableName=os.environ['TABLE_NAME'],Item={'id-a':{'S':keyA},'id-z':{'S':keyz}})
+    print("PUT ID LOOKUP")
+    print(response)
+    return 
 
 def create_support_case(payload_dict):
     '''Create an AWS Support case from the webhook data.'''
@@ -46,19 +51,10 @@ def create_support_case(payload_dict):
         file_name = response['caseId']
         content = str(payload_dict['detail'].get('zd_ticket_id'))
 
-        # Envoyer le fichier dans S3
-        S3.put_object(
-            Bucket=bucket_name,
-            Key=file_name,
-            Body=content.encode("utf-8"), 
-            ContentType="text/plain"
-        )
-        S3.put_object(
-            Bucket=bucket_name,
-            Key=content,
-            Body=file_name.encode("utf-8"), 
-            ContentType="text/plain"
-        )
+
+        put_lookup_id(response['caseId'],content)
+        put_lookup_id(content,response['caseId'])
+       
 
         return {
             'statusCode': 200,
@@ -75,7 +71,7 @@ def create_support_case(payload_dict):
 def update_support_case(payload_dict):
 
     response = SUPPORT.add_communication_to_case(
-        caseId=get_s3_object(str(payload_dict['detail']['zd_ticket_id'])),
+        caseId=get_lookup_id((str(payload_dict['detail']['zd_ticket_id']))),
         communicationBody= payload_dict['detail']['zd_ticket_latest_public_comment'],
     )
     print(response)
@@ -83,7 +79,7 @@ def update_support_case(payload_dict):
 
 def solve_support_case(payload_dict):
     response = SUPPORT.resolve_case(
-        caseId=get_s3_object(str(payload_dict['detail']['zd_ticket_id']))
+        caseId=get_lookup_id(str(payload_dict['detail']['zd_ticket_id']))
     )
 
 def lambda_handler(event, context):

@@ -55,6 +55,24 @@ resource "aws_iam_policy" "lambda_eventbridge_policy_listener" {
       ],
       "Resource": "${aws_s3_bucket.case_id_lookup.arn}/*"
     },
+          {
+            "Sid": "SpecificTable",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:BatchGet*",
+                "dynamodb:DescribeStream",
+                "dynamodb:DescribeTable",
+                "dynamodb:Get*",
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:BatchWrite*",
+                "dynamodb:CreateTable",
+                "dynamodb:Delete*",
+                "dynamodb:Update*",
+                "dynamodb:PutItem"
+            ],
+            "Resource": "${aws_dynamodb_table.idlookup.arn}"
+        },
       {
             "Effect": "Allow",
             "Action": [
@@ -67,7 +85,12 @@ resource "aws_iam_policy" "lambda_eventbridge_policy_listener" {
             "Resource": [
                 "*"
             ]
-        }
+        },
+         {
+        "Effect": "Allow",
+        "Action": ["support:*"],
+        "Resource": "*"
+    }
   ]
 }
 EOF
@@ -75,12 +98,12 @@ EOF
 
 # Attacher la policy à la Lambda
 resource "aws_iam_role_policy_attachment" "lambda_to_eventbridge_attach" {
-  role       = aws_iam_role.lambda_role.name
+  role       = aws_iam_role.lambda_event_listener_role.name
   policy_arn = aws_iam_policy.lambda_eventbridge_policy_listener.arn
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic_execution_listener" {
-  role       = aws_iam_role.lambda_role.name
+  role       = aws_iam_role.lambda_event_listener_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
@@ -93,7 +116,7 @@ resource "aws_cloudwatch_log_group" "lambda_log_group_listener" {
 # Définition de la Lambda
 resource "aws_lambda_function" "event_listener_lambda" {
   function_name    = "lambdaZendeskToAws"
-  role             = aws_iam_role.lambda_role.arn
+  role             = aws_iam_role.lambda_event_listener_role.arn
   runtime          = "python3.9"
   handler          = "lambdaZendeskToAws.lambda_handler"
   filename         = "../lambdaZendeskToAws/lambdaZendeskToAws.zip"
@@ -105,6 +128,8 @@ resource "aws_lambda_function" "event_listener_lambda" {
     variables = {
       EVENT_BUS_ARN      = aws_cloudwatch_event_bus.webhook_event_bus.arn
       BUCKET_AWS_ZENDESK = aws_s3_bucket.case_id_lookup.id
+      TABLE_NAME          = aws_dynamodb_table.idlookup.name
+
     }
   }
 }

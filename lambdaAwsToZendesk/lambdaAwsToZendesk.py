@@ -9,7 +9,8 @@ from aws_xray_sdk.core import patch_all
 
 patch_all()
 
-S3 = boto3.client('s3')
+
+DYNAMO = boto3.client('dynamodb')
 
 SUPPORT = boto3.client('support')
 LOGGER = logging.getLogger()
@@ -19,7 +20,6 @@ ZENDESK_SUBDOMAIN = os.environ['ZENDESK_SUBDOMAIN']
 ZENDESK_ADMIN_EMAIL = os.environ['ZENDESK_ADMIN_EMAIL']
 
 def update_zendesk_ticket(ticket_id, comment, solve=False):
-
     url = f"https://{ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/{ticket_id}.json"
     auth_string = f"{ZENDESK_ADMIN_EMAIL}/token:{ZENDESK_TOKEN}"
     auth_encoded = base64.b64encode(auth_string.encode()).decode()
@@ -47,15 +47,11 @@ def update_zendesk_ticket(ticket_id, comment, solve=False):
         raise Exception(f"Erreur lors de la mise à jour du ticket: {e}")
 
 
-
-def get_s3_object( key):
-    try:
-        response = S3.get_object(Bucket=os.environ['S3_BUCKET_NAME'], Key=key)
-        content = response["Body"].read().decode("utf-8") 
-        return content
-    except Exception as e:
-        print("❌ Error when retrieving data from S3:", str(e))
-        return None
+def get_lookup_id(key):
+    response = DYNAMO.get_item( TableName= os.environ['TABLE_NAME'], Key={'id-z':{'S':key}})
+    print("GET ID LOOKUP")
+    print(response)
+    return response['Item']['id-a']['S']
 
 def lambda_handler(event, context):
     """
@@ -73,7 +69,7 @@ def lambda_handler(event, context):
         print(event_origin)
         if(event_name == "AddCommunicationToCase" and event_origin == "AWS"):
             print("send comm to Zendesk API")
-            z_id =  get_s3_object(case_id)
+            z_id =  get_lookup_id(case_id)
             print("retrieving the last message from support")
             response = SUPPORT.describe_communications(
                 caseId=case_id,
@@ -91,7 +87,7 @@ def lambda_handler(event, context):
                 print(f"❌ Erreur: {e}")
 
         if(event_name == "ResolveCase"):
-            z_id =  get_s3_object(case_id)
+            z_id =  get_lookup_id(case_id)
             z_response = update_zendesk_ticket(
                     ticket_id=z_id,
                     comment='solved',
