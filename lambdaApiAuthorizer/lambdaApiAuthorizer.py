@@ -1,32 +1,45 @@
 
 import json
-import hashlib
-import hmac
 import os
-import base64
 import logging
 
 import boto3
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core import patch_all
+from botocore.exceptions import ClientError
 
 patch_all()
 LOGGER = logging.getLogger()
 LOGGER.setLevel('INFO')
 
-WEBHOOK_SECRET_CREATE = os.environ['WEBHOOK_SECRET_CREATE'].encode('utf-8')
-WEBHOOK_SECRET_UPDATE = os.environ['WEBHOOK_SECRET_UPDATE'].encode('utf-8')
-WEBHOOK_SECRET_SOLVED = os.environ['WEBHOOK_SECRET_SOLVED'].encode('utf-8')
-BEARER_TOKEN          = os.environ['BEARER_TOKEN']
+REGION_NAME  = os.environ['REGION_NAME']
+
+def get_secret():
+    secret_name = "api_key"
+    region_name = REGION_NAME
+
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    return secret
+
+BEARER_TOKEN = get_secret()
 
 def verify_signature(bearer):
     return bearer == BEARER_TOKEN
 
-
-
 def lambda_handler(event, context):
-    print("hello")
-    print(event)
 
     bearer = event['headers'].get('authorization', '')
 

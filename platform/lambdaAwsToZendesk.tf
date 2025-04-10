@@ -44,18 +44,6 @@ resource "aws_iam_policy" "lambda_support_case_policy" {
       ],
       "Resource": "arn:aws:logs:eu-west-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/lambdaAwsToZendesk:*"
     },
-       {
-      "Effect": "Allow",
-      "Action": [
-        "s3:PutObject",
-        "s3:PutObjectAcl",
-        "s3:GetObject",
-        "s3:GetObject",
-        "s3:GetObjectVersion",
-        "s3:ListBucket"
-      ],
-      "Resource": "${aws_s3_bucket.case_id_lookup.arn}/*"
-    },
       {
             "Sid": "SpecificTable",
             "Effect": "Allow",
@@ -91,7 +79,17 @@ resource "aws_iam_policy" "lambda_support_case_policy" {
             "Resource": [
                 "*"
             ]
+        },
+              {
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue"
+            ],
+            "Resource": [
+                "${aws_secretsmanager_secret.zendesk_api_key.arn}"
+            ]
         }
+
   ]
 }
 EOF
@@ -117,17 +115,17 @@ resource "aws_lambda_function" "support_case_monitor_lambda" {
   handler          = "lambdaAwsToZendesk.lambda_handler"
   filename         = "../lambdaAwsToZendesk/lambdaAwsToZendesk.zip"
   source_code_hash = filebase64sha256("../lambdaAwsToZendesk/lambdaAwsToZendesk.zip")
+  timeout          = 15
   tracing_config {
     mode = "Active"
   }
   environment {
     variables = {
       EVENT_BUS_ARN       = aws_cloudwatch_event_bus.webhook_event_bus.arn
-      S3_BUCKET_NAME      = aws_s3_bucket.case_id_lookup.id
-      ZENDESK_TOKEN       = var.zendesk_token
       ZENDESK_SUBDOMAIN   = var.zendesk_subdomain
       ZENDESK_ADMIN_EMAIL = var.zendesk_admin_email
       TABLE_NAME          = aws_dynamodb_table.idlookup.name
+      REGION_NAME         = var.region
     }
   }
 }

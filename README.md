@@ -178,12 +178,12 @@ The zendesk-aws-support project is a powerful bridge between Zendesk and AWS, en
 
 Before getting started with zendesk-aws-support, ensure your runtime environment meets the following requirements:
 
-- **Programming Language:** Terraform
+- **Programming Language:** Terraform & Python 3
 
 
 ### ⚙️ Installation
 
-Install zendesk-aws-support using one of the following methods:
+Install zendesk-aws-support using the following methods:
 
 **Build from source:**
 
@@ -196,6 +196,7 @@ Install zendesk-aws-support using one of the following methods:
 ```sh
 ❯ cd zendesk-aws-support
 ```
+
 
 3. Install the project dependencies:
 
@@ -210,15 +211,19 @@ Install zendesk-aws-support using one of the following methods:
 
 ### 🤖 Zendesk configuration
 
-#### 1.Create 2 custom fields
-First create 2 additional custom fields in the Zendesk form to gather data about Severity, Impacted Service and Category of the case: 
+#### 1.Create 3 custom fields
+First create 3 additional custom fields in the Zendesk form to gather data about Severity, Impacted Service and Category of the case: 
 - Field named AWS Service should be a drop down field with serviceCodes value (SageMaker)
 - Field named Category code should be a drop down field with all the possible categoryCodes for a give serviceCode (cf file in /zendeskResources directory).
+- Field named Severity should be a drop down field with ["urgent","high","normal","low","critical"]
 #### 2.Create Webhooks
 Then create 3 webhooks:
 - aws support - solved, endpoint = https://your_gateway_url/solved 
 - aws support - update, endpoint = https://your_gateway_url/update 
-- aws support - create , endpoint = https://your_gateway_url/create 
+- aws support - create , endpoint = https://your_gateway_url/create   
+
+⚠️ When creating the webhook select Authentication + Bearer token and add the bearer_token variable from /platform/tofill.auto.tfvars
+
 
 ####  3.Create Triggers
 From the Zendesk Admin Panel, create **3 triggers** (under *Objects and Rules*).

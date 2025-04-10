@@ -47,8 +47,6 @@ def create_support_case(payload_dict):
         )
         
         LOGGER.info(f"Support case created: {response['caseId']}")
-        bucket_name =  os.environ['BUCKET_AWS_ZENDESK']
-        file_name = response['caseId']
         content = str(payload_dict['detail'].get('zd_ticket_id'))
 
 

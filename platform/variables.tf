@@ -12,20 +12,6 @@ variable "zendesk_token" {
   type        = string
 }
 
-variable "webhook_secret_create" {
-  description = "Zendesk token to sign POST requests"
-  type        = string
-}
-variable "webhook_secret_update" {
-  description = "Zendesk token to sign POST requests"
-  type        = string
-}
-
-variable "webhook_secret_solved" {
-  description = "Zendesk token to sign POST requests"
-  type        = string
-}
-
 variable "zendesk_subdomain" {
   description = "Zendesk subdomain"
   type        = string

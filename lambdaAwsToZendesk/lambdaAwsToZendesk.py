@@ -6,6 +6,7 @@ import boto3
 import os
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core import patch_all
+from botocore.exceptions import ClientError
 
 patch_all()
 
@@ -15,13 +16,13 @@ DYNAMO = boto3.client('dynamodb')
 SUPPORT = boto3.client('support')
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
-ZENDESK_TOKEN = os.environ['ZENDESK_TOKEN']
 ZENDESK_SUBDOMAIN = os.environ['ZENDESK_SUBDOMAIN']
 ZENDESK_ADMIN_EMAIL = os.environ['ZENDESK_ADMIN_EMAIL']
+REGION_NAME         = os.environ['REGION_NAME']
 
-def update_zendesk_ticket(ticket_id, comment, solve=False):
+def update_zendesk_ticket(ticket_id, comment,zendesk_token, solve=False):
     url = f"https://{ZENDESK_SUBDOMAIN}.zendesk.com/api/v2/tickets/{ticket_id}.json"
-    auth_string = f"{ZENDESK_ADMIN_EMAIL}/token:{ZENDESK_TOKEN}"
+    auth_string = f"{ZENDESK_ADMIN_EMAIL}/token:{zendesk_token}"
     auth_encoded = base64.b64encode(auth_string.encode()).decode()
     
     headers = {
@@ -47,6 +48,27 @@ def update_zendesk_ticket(ticket_id, comment, solve=False):
         raise Exception(f"Erreur lors de la mise à jour du ticket: {e}")
 
 
+def get_secret():
+
+    secret_name = "zendesk_api_key"
+    region_name = REGION_NAME
+
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        raise e
+
+    secret = get_secret_value_response['SecretString']
+    return secret
+
 def get_lookup_id(key):
     response = DYNAMO.get_item( TableName= os.environ['TABLE_NAME'], Key={'id-z':{'S':key}})
     print("GET ID LOOKUP")
@@ -57,16 +79,16 @@ def lambda_handler(event, context):
     """
     AWS Lambda function that logs support case events from EventBridge.
     """
-    try:
+    try:    
+        zendesk_token =  get_secret()
+
+
         LOGGER.info("Received AWS Support Case Event:")
         LOGGER.info(json.dumps(event, indent=2))
         event_name = event.get('detail', {}).get('event-name', 'Unknown')
         event_origin = event.get('detail', {}).get('origin', 'Unknown')
         case_id = event.get('detail', {}).get('case-id', 'Unknown')
 
-        print(case_id)
-        print(event_name)
-        print(event_origin)
         if(event_name == "AddCommunicationToCase" and event_origin == "AWS"):
             print("send comm to Zendesk API")
             z_id =  get_lookup_id(case_id)
@@ -75,22 +97,25 @@ def lambda_handler(event, context):
                 caseId=case_id,
                 maxResults=10
             )
-            print(response['communications'][0])
+            #print(response['communications'][0])
             try:
-                z_response = update_zendesk_ticket(
+                update_zendesk_ticket(
                     ticket_id=z_id,
-                    comment=response['communications'][0]['body'],
+                    comment=response['communications'][0]['body'], 
+                    zendesk_token=zendesk_token
+                    
                 )
-                print("✅ Ticket mis à jour avec succès!")
+                print("✅ Case updated")
 
             except Exception as e:
-                print(f"❌ Erreur: {e}")
+                print(f"❌ error: {e}")
 
         if(event_name == "ResolveCase"):
             z_id =  get_lookup_id(case_id)
-            z_response = update_zendesk_ticket(
+            update_zendesk_ticket(
                     ticket_id=z_id,
                     comment='solved',
+                    zendesk_token=zendesk_token,
                     solve=True
                 )
 

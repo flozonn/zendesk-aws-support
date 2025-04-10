@@ -44,17 +44,6 @@ resource "aws_iam_policy" "lambda_eventbridge_policy_listener" {
       ],
       "Resource": "arn:aws:logs:eu-central-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/event_listener_lambda:*"
     },
-     {
-      "Effect": "Allow",
-      "Action": [
-        "s3:PutObject",
-        "s3:PutObjectAcl",
-        "s3:GetObject",
-        "s3:GetObjectVersion",
-        "s3:ListBucket"
-      ],
-      "Resource": "${aws_s3_bucket.case_id_lookup.arn}/*"
-    },
           {
             "Sid": "SpecificTable",
             "Effect": "Allow",
@@ -121,13 +110,13 @@ resource "aws_lambda_function" "event_listener_lambda" {
   handler          = "lambdaZendeskToAws.lambda_handler"
   filename         = "../lambdaZendeskToAws/lambdaZendeskToAws.zip"
   source_code_hash = filebase64sha256("../lambdaZendeskToAws/lambdaZendeskToAws.zip")
+  timeout          = 15
   tracing_config {
     mode = "Active"
   }
   environment {
     variables = {
       EVENT_BUS_ARN      = aws_cloudwatch_event_bus.webhook_event_bus.arn
-      BUCKET_AWS_ZENDESK = aws_s3_bucket.case_id_lookup.id
       TABLE_NAME          = aws_dynamodb_table.idlookup.name
 
     }

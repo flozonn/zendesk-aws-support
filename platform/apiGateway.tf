@@ -114,7 +114,7 @@ EOF
 
 resource "aws_lambda_permission" "api_gateway_invoke_auth" {
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.hmac_authorizer.function_name
+  function_name = aws_lambda_function.authorizer.function_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.webhook_api.execution_arn}/*"
