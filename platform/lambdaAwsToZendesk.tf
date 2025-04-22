@@ -17,89 +17,30 @@ resource "aws_iam_role" "lambda_support_case_role" {
 EOF
 }
 
-# IAM Policy for Lambda to read from EventBridge and log to CloudWatch
-resource "aws_iam_policy" "lambda_support_case_policy" {
-  name        = "lambda_support_case_policy"
-  description = "Allow Lambda to read support case events from EventBridge"
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "events:DescribeRule",
-        "events:*",
-        "events:GetEventBus"
-      ],
-     "Resource": "arn:aws:events:eu-west-1:619071325606:event-bus/default"
-    },
-        {
-      "Effect": "Allow",
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ],
-      "Resource": "arn:aws:logs:eu-west-1:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/lambdaAwsToZendesk:*"
-    },
-      {
-            "Sid": "SpecificTable",
-            "Effect": "Allow",
-            "Action": [
-                "dynamodb:BatchGet*",
-                "dynamodb:DescribeStream",
-                "dynamodb:DescribeTable",
-                "dynamodb:Get*",
-                "dynamodb:Query",
-                "dynamodb:Scan",
-                "dynamodb:BatchWrite*",
-                "dynamodb:CreateTable",
-                "dynamodb:Delete*",
-                "dynamodb:Update*",
-                "dynamodb:PutItem"
-            ],
-            "Resource": "${aws_dynamodb_table.idlookup.arn}"
-        },
-        {
-        "Effect": "Allow",
-        "Action": ["support:*"],
-        "Resource": "*"
-    },
-      {
-            "Effect": "Allow",
-            "Action": [
-                "xray:PutTraceSegments",
-                "xray:PutTelemetryRecords",
-                "xray:GetSamplingRules",
-                "xray:GetSamplingTargets",
-                "xray:GetSamplingStatisticSummaries"
-            ],
-            "Resource": [
-                "*"
-            ]
-        },
-              {
-            "Effect": "Allow",
-            "Action": [
-                "secretsmanager:GetSecretValue"
-            ],
-            "Resource": [
-                "${aws_secretsmanager_secret.zendesk_api_key.arn}"
-            ]
-        }
+# Attach IAM policies to Lambda role
 
-  ]
-}
-EOF
-}
-
-# Attach IAM policy to Lambda role
-resource "aws_iam_role_policy_attachment" "lambda_support_case_attach" {
+resource "aws_iam_role_policy_attachment" "lambda_lookup_db_attach" {
   role       = aws_iam_role.lambda_support_case_role.name
-  policy_arn = aws_iam_policy.lambda_support_case_policy.arn
+  policy_arn = aws_iam_policy.lookup_db_policy.arn
 }
+resource "aws_iam_role_policy_attachment" "lambda_defaultbus_attach" {
+  role       = aws_iam_role.lambda_support_case_role.name
+  policy_arn = aws_iam_policy.default_bus_access_policy.arn
+}
+resource "aws_iam_role_policy_attachment" "lambda_api_secret_attach" {
+  role       = aws_iam_role.lambda_support_case_role.name
+  policy_arn = aws_iam_policy.get_api_secret_policy.arn
+}
+resource "aws_iam_role_policy_attachment" "read_support_cases_attach" {
+  role       = aws_iam_role.lambda_support_case_role.name
+  policy_arn = aws_iam_policy.edit_support_cases.arn
+}
+resource "aws_iam_role_policy_attachment" "lambda_basic_exec" {
+  role       = aws_iam_role.lambda_support_case_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 
 # CloudWatch log group for Lambda
 resource "aws_cloudwatch_log_group" "lambda_support_case_log" {
@@ -111,10 +52,10 @@ resource "aws_cloudwatch_log_group" "lambda_support_case_log" {
 resource "aws_lambda_function" "support_case_monitor_lambda" {
   function_name    = "lambdaAwsToZendesk"
   role             = aws_iam_role.lambda_support_case_role.arn
-  runtime          = "python3.9"
-  handler          = "lambdaAwsToZendesk.lambda_handler"
-  filename         = "../lambdaAwsToZendesk/lambdaAwsToZendesk.zip"
-  source_code_hash = filebase64sha256("../lambdaAwsToZendesk/lambdaAwsToZendesk.zip")
+  runtime          = "python3.13"
+  handler          = "handler.lambda_handler"
+  filename         = "${path.module}/../dist/aws_to_zendesk.zip"
+  source_code_hash = filebase64sha256("${path.module}/../dist/aws_to_zendesk.zip")
   timeout          = 15
   tracing_config {
     mode = "Active"

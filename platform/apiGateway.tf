@@ -7,61 +7,61 @@ resource "aws_apigatewayv2_integration" "eventbridge_integration_create" {
   api_id              = aws_apigatewayv2_api.webhook_api.id
   integration_type    = "AWS_PROXY"
   integration_subtype = "EventBridge-PutEvents"
-  request_parameters  = {
+  request_parameters = {
     EventBusName = aws_cloudwatch_event_bus.webhook_event_bus.name
     Detail       = "$request.body"
     DetailType   = "create.webhook"
     Source       = "zendesk.webhook"
   }
-  credentials_arn     = aws_iam_role.apigateway_eventbridge_role.arn
+  credentials_arn        = aws_iam_role.apigateway_eventbridge_role.arn
   payload_format_version = "1.0"
 }
 resource "aws_apigatewayv2_integration" "eventbridge_integration_solved" {
   api_id              = aws_apigatewayv2_api.webhook_api.id
   integration_type    = "AWS_PROXY"
   integration_subtype = "EventBridge-PutEvents"
-  request_parameters  = {
+  request_parameters = {
     EventBusName = aws_cloudwatch_event_bus.webhook_event_bus.name
     Detail       = "$request.body"
     DetailType   = "solved.webhook"
     Source       = "zendesk.webhook"
   }
-  credentials_arn     = aws_iam_role.apigateway_eventbridge_role.arn
+  credentials_arn        = aws_iam_role.apigateway_eventbridge_role.arn
   payload_format_version = "1.0"
 }
 resource "aws_apigatewayv2_integration" "eventbridge_integration_update" {
   api_id              = aws_apigatewayv2_api.webhook_api.id
   integration_type    = "AWS_PROXY"
   integration_subtype = "EventBridge-PutEvents"
-  request_parameters  = {
+  request_parameters = {
     EventBusName = aws_cloudwatch_event_bus.webhook_event_bus.name
     Detail       = "$request.body"
     DetailType   = "update.webhook"
     Source       = "zendesk.webhook"
   }
-  credentials_arn     = aws_iam_role.apigateway_eventbridge_role.arn
+  credentials_arn        = aws_iam_role.apigateway_eventbridge_role.arn
   payload_format_version = "1.0"
 }
 
 resource "aws_apigatewayv2_route" "webhook_route_create" {
-  api_id    = aws_apigatewayv2_api.webhook_api.id
-  route_key = "POST /create"
-  target    = "integrations/${aws_apigatewayv2_integration.eventbridge_integration_create.id}"
-  authorizer_id = aws_apigatewayv2_authorizer.hmac_auth.id
+  api_id             = aws_apigatewayv2_api.webhook_api.id
+  route_key          = "POST /create"
+  target             = "integrations/${aws_apigatewayv2_integration.eventbridge_integration_create.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.hmac_auth.id
   authorization_type = "CUSTOM"
 }
 resource "aws_apigatewayv2_route" "webhook_route_update" {
-  api_id    = aws_apigatewayv2_api.webhook_api.id
-  route_key = "POST /update"
-  target    = "integrations/${aws_apigatewayv2_integration.eventbridge_integration_update.id}"
-  authorizer_id = aws_apigatewayv2_authorizer.hmac_auth.id
+  api_id             = aws_apigatewayv2_api.webhook_api.id
+  route_key          = "POST /update"
+  target             = "integrations/${aws_apigatewayv2_integration.eventbridge_integration_update.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.hmac_auth.id
   authorization_type = "CUSTOM"
 }
 resource "aws_apigatewayv2_route" "webhook_route_solved" {
-  api_id    = aws_apigatewayv2_api.webhook_api.id
-  route_key = "POST /solved"
-  target    = "integrations/${aws_apigatewayv2_integration.eventbridge_integration_solved.id}"
-  authorizer_id = aws_apigatewayv2_authorizer.hmac_auth.id
+  api_id             = aws_apigatewayv2_api.webhook_api.id
+  route_key          = "POST /solved"
+  target             = "integrations/${aws_apigatewayv2_integration.eventbridge_integration_solved.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.hmac_auth.id
   authorization_type = "CUSTOM"
 }
 

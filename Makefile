@@ -1,27 +1,53 @@
-.PHONY: all zip clean deploy
+.PHONY: all zip deploy clean codescanner
 
-ZIP_FILES = lambdaZendeskToAws.zip lambdaWebhooksToEventBridge.zip lambdaAwsToZendesk.zip
+LAMBDA_NAMES = zendesk_to_aws aws_to_zendesk api_authorizer
+LAMBDA_SRC = lambdas
+SHARED_SRC = lambdas/shared
+ZIP_DIR = dist
+BUILD_DIR = build
+PLATFORM_DIR = platform
+PYTHON_DEPS = boto3 aws_xray_sdk
 
 all: zip deploy
 
-zip:
-	cd lambdaZendeskToAws && rm ./lambdaZendeskToAws.zip && pip install --target ./package boto3 aws_xray_sdk && cd package && zip -r ../lambdaZendeskToAws.zip . && cd .. && zip lambdaZendeskToAws.zip lambdaZendeskToAws.py
-	cd lambdaAwsToZendesk && rm ./lambdaAwsToZendesk.zip && pip install --target ./package boto3 aws_xray_sdk && cd package && zip -r ../lambdaAwsToZendesk.zip . && cd .. && zip lambdaAwsToZendesk.zip lambdaAwsToZendesk.py
-	cd lambdaApiAuthorizer && rm ./lambdaApiAuthorizer.zip  && pip install --target ./package boto3 aws_xray_sdk && cd package && zip -r ../lambdaApiAuthorizer.zip . && cd .. && zip lambdaApiAuthorizer.zip lambdaApiAuthorizer.py
+zip: clean_dist $(LAMBDA_NAMES)
+
+$(LAMBDA_NAMES):
+	@echo "📦 Building lambda: $@"
+	rm -rf $(BUILD_DIR)/$@
+	mkdir -p $(BUILD_DIR)/$@/python
+
+	# Install Python dependencies
+	pip3 install --quiet --target $(BUILD_DIR)/$@/python $(PYTHON_DEPS)
+
+	# Copy source
+	cp $(LAMBDA_SRC)/$@/handler.py $(BUILD_DIR)/$@/
+	cp -r $(SHARED_SRC) $(BUILD_DIR)/$@/shared
+
+	# Create ZIP
+	cd $(BUILD_DIR)/$@ && zip -qr ../../$(ZIP_DIR)/$@.zip .
+	@echo "✅ Packaged: $(ZIP_DIR)/$@.zip"
+
+clean_dist:
+	rm -rf $(ZIP_DIR)/*
+	mkdir -p $(ZIP_DIR)
 
 deploy:
-	terraform fmt && cd platform && terraform apply -auto-approve
+	@echo "🚀 Deploying with Terraform..."
+	cd $(PLATFORM_DIR) && terraform fmt && terraform apply -auto-approve
+	@echo "✅ Deployment complete."
 
 clean:
-	cd platform && terraform destroy -auto-approve
+	@echo "🧹 Cleaning build and dist folders"
+	rm -rf $(BUILD_DIR) $(ZIP_DIR)
 
 codescanner:
-	bandit -r lambdaAwsToZendesk -f json > codescans/lambdaAwsToZendesk.json ; \
-	bandit -r lambdaApiAuthorizer -f json > codescans/lambdaApiAuthorizer.json ; \
-	bandit -r lambdaZendeskToAws -f json > codescans/lambdaZendeskToAws.json ; \
-	detect-secrets scan > codescans/.secrets.baseline ; \
-	checkov -d platform -o json > codescans/terraform.json ; \
+	@echo "🔍 Running security scans..."
+	mkdir -p codescans
+	@for name in $(LAMBDA_NAMES); do \
+		bandit -r $(LAMBDA_SRC)/$$name -f json > codescans/$$name.json; \
+	done
+	detect-secrets scan > codescans/.secrets.baseline
+	checkov -d $(PLATFORM_DIR) -o json > codescans/terraform.json
 	semgrep --config=auto . --json > codescans/semgrep_report.json
-
-
-
+	@echo "✅ Security scans complete."
