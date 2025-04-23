@@ -4,9 +4,10 @@
       {
         "Effect": "Allow",
         "Action": [
-          "events:PutEvents",
-          "events:GetEventBus"
-        ],
+            "events:DescribeRule",
+            "events:PutEvents",
+            "events:GetEventBus"
+          ],
         "Resource": "${webhook_bus_arn}"
       }
     ]

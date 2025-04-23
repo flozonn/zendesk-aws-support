@@ -73,6 +73,16 @@ resource "aws_apigatewayv2_stage" "webhook_stage" {
 }
 
 
+resource "aws_cloudwatch_log_group" "apigwlg" {
+  name              = "/aws/apigateway/webhook"
+  retention_in_days = 365
+  kms_key_id        = aws_kms_key.dynamo.arn
+  tags = {
+    Name = "APIGatewayLogs"
+  }
+}
+
+
 resource "aws_iam_role" "apigateway_eventbridge_role" {
   name = "apigateway_eventbridge_role"
 

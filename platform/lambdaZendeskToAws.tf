@@ -19,6 +19,10 @@ EOF
 }
 
 # Attacher la policy à la Lambda
+resource "aws_iam_role_policy_attachment" "lambda_dlq_policy_attach1" {
+  role       = aws_iam_role.lambda_event_listener_role.name
+  policy_arn = aws_iam_policy.lambda_dlq_policy.arn
+}
 resource "aws_iam_role_policy_attachment" "lambda_lookup_db" {
   role       = aws_iam_role.lambda_event_listener_role.name
   policy_arn = aws_iam_policy.lookup_db_policy.arn
@@ -44,19 +48,21 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution_listener" {
 
 # Groupe de logs pour la Lambda
 resource "aws_cloudwatch_log_group" "lambda_log_group_listener" {
-  name              = "/aws/lambda/event_listener_lambda"
-  retention_in_days = 7
+  name              = "/aws/lambda/ZendeskToAws"
+  retention_in_days = 365
+  kms_key_id        = aws_kms_key.dynamo.arn
 }
 
 # Définition de la Lambda
 resource "aws_lambda_function" "event_listener_lambda" {
-  function_name    = "lambdaZendeskToAws"
-  role             = aws_iam_role.lambda_event_listener_role.arn
-  runtime          = "python3.13"
-  handler          = "handler.lambda_handler"
-  filename         = "${path.module}/../dist/zendesk_to_aws.zip"
-  source_code_hash = filebase64sha256("${path.module}/../dist/zendesk_to_aws.zip")
-  timeout          = 15
+  function_name                  = "ZendeskToAws"
+  role                           = aws_iam_role.lambda_event_listener_role.arn
+  runtime                        = "python3.13"
+  handler                        = "handler.lambda_handler"
+  filename                       = "${path.module}/../dist/zendesk_to_aws.zip"
+  source_code_hash               = filebase64sha256("${path.module}/../dist/zendesk_to_aws.zip")
+  timeout                        = 15
+  reserved_concurrent_executions = 3
   tracing_config {
     mode = "Active"
   }
@@ -64,8 +70,11 @@ resource "aws_lambda_function" "event_listener_lambda" {
     variables = {
       EVENT_BUS_ARN = aws_cloudwatch_event_bus.webhook_event_bus.arn
       TABLE_NAME    = aws_dynamodb_table.idlookup.name
-
     }
+  }
+  kms_key_arn = aws_kms_key.dynamo.arn
+  dead_letter_config {
+    target_arn = aws_sqs_queue.lambda_dlq.arn
   }
 }
 

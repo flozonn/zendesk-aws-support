@@ -85,3 +85,10 @@ resource "aws_secretsmanager_secret_policy" "zendesk_gateway_secret_policy" {
     resources        = aws_secretsmanager_secret.zendesk_api_key.arn
   })
 }
+
+resource "aws_iam_policy" "lambda_dlq_policy" {
+  name = "zendesk_to_aws_dlq_policy"
+  policy = templatefile("${path.module}/policies/dlq_policy.tpl.json", {
+    sqs_dlq_arn = aws_sqs_queue.lambda_dlq.arn
+  })
+}

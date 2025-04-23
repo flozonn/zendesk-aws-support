@@ -45,9 +45,11 @@ codescanner:
 	@echo "🔍 Running security scans..."
 	mkdir -p codescans
 	@for name in $(LAMBDA_NAMES); do \
-		bandit -r $(LAMBDA_SRC)/$$name -f json > codescans/$$name.json; \
+		bandit -r $(LAMBDA_SRC)/$$name -f json > codescans/bandit-$$name.json; \
 	done
 	detect-secrets scan > codescans/.secrets.baseline
-	checkov -d $(PLATFORM_DIR) -o json > codescans/terraform.json
-	semgrep --config=auto . --json > codescans/semgrep_report.json
+	semgrep --config=auto . --sarif > codescans/semgrep_report.sarif
+	@echo " Checkov..."
+	checkov --skip-framework secrets -d $(PLATFORM_DIR) -o sarif --output-file-path codescans/ 
 	@echo "✅ Security scans complete."
+
