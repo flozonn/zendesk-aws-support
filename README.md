@@ -66,7 +66,6 @@ The zendesk-aws-support project seamlessly integrates Zendesk with AWS, automati
     ├── Makefile
     ├── README.md
     ├── lambdas
-    │   ├── .DS_Store
     │   ├── api_authorizer
     │   │   └── handler.py
     │   ├── aws_to_zendesk
@@ -80,7 +79,6 @@ The zendesk-aws-support project seamlessly integrates Zendesk with AWS, automati
     │   └── zendesk_to_aws
     │       └── handler.py
     ├── platform
-    │   ├── .DS_Store
     │   ├── .terraform.lock.hcl
     │   ├── apiGateway.tf
     │   ├── dlq.tf

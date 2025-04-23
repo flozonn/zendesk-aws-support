@@ -178,3 +178,5 @@ codescans
 */package/*
 
 /build/*
+
+*.DS_Store
