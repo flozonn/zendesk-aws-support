@@ -38,39 +38,24 @@
 ##  Table of Contents
 
 - [ Overview](#-overview)
-- [ Features](#-features)
 - [ Project Structure](#-project-structure)
   - [ Project Index](#-project-index)
+  - [ Project Architecture](#-project-architecture)
 - [ Getting Started](#-getting-started)
   - [ Prerequisites](#-prerequisites)
   - [ Installation](#-installation)
-  - [ Usage](#-usage)
-  - [ Testing](#-testing)
-- [ Project Roadmap](#-project-roadmap)
+  - [ Zendesk configuration](#-zendesk-configuration)
 - [ Contributing](#-contributing)
 - [ License](#-license)
 - [ Acknowledgments](#-acknowledgments)
+
+
 
 ---
 
 ##  Overview
 
 The zendesk-aws-support project seamlessly integrates Zendesk with AWS, automating customer support workflows and enhancing case management. By leveraging serverless architecture, it ensures efficient synchronization between support tickets and AWS events, providing robust, secure, and scalable solutions. Ideal for organizations looking to streamline their customer service operations and maintain high responsiveness in cloud environments.
-
----
-
-##  Features
-
-|      | Feature         | Summary       |
-| :--- | :---:           | :---          |
-| ⚙️  | **Architecture**  | <ul><li>Utilizes serverless architecture with AWS Lambda for handling interactions between Zendesk and AWS.</li><li>Employs AWS EventBridge for event-driven operations, automating responses to specific events.</li><li>Integrates with AWS DynamoDB for data storage and AWS Secrets Manager for secure configuration management.</li></ul> |
-| 🔩 | **Code Quality**  | <ul><li>Adopts Python for Lambda functions, ensuring readability and maintainability.</li><li>Uses Terraform for infrastructure as code, promoting reproducible and consistent deployments.</li><li>Structured and modular codebase with clear separation of concerns between components.</li></ul> |
-| 📄 | **Documentation** | <ul><li>Documentation includes detailed setup and usage instructions, leveraging `pip` for dependency management.</li><li>Codebase includes comments and README files for better understanding of the infrastructure setup and operations.</li><li>Documentation is spread across multiple file types including `.tf`, `.py`, and `.json`, reflecting a comprehensive approach.</li></ul> |
-| 🔌 | **Integrations**  | <ul><li>Integrates with Zendesk for managing customer support tickets.</li><li>Uses AWS services like DynamoDB, Secrets Manager, and Lambda extensively.</li><li>Configures AWS API Gateway to handle webhook events, enhancing connectivity between systems.</li></ul> |
-| 🧩 | **Modularity**    | <ul><li>Codebase is divided into multiple Lambda functions and Terraform files, each handling a specific part of the process.</li><li>Utilizes shared utility modules like `logger.py` and `dynamo_utils.py` for common tasks across functions.</li><li>Policy templates and IAM roles are defined separately, allowing for easier updates and management.</li></ul> |
-| 🧪 | **Testing**       | <ul><li>Testing strategies are not explicitly detailed in the provided context, suggesting an area for potential enhancement.</li><li>Utilizes `makefile` for automating tasks which could include test execution.</li><li>Relies on AWS X-Ray for tracing and debugging, aiding in monitoring Lambda functions.</li></ul> |
-| ⚡️  | **Performance**   | <ul><li>Leverages AWS Lambda and DynamoDB for high-performance operations and scalability.</li><li>Employs AWS X-Ray for performance monitoring and tracing to optimize response times and resource usage.</li><li>Serverless architecture inherently supports on-demand scaling and efficient resource management.</li></ul> |
-| 🛡️ | **Security**      | <ul><li>Implements robust security measures with AWS KMS for encryption and IAM policies for fine-grained access control.</li><li>Uses AWS Secrets Manager for secure storage and management of sensitive information like API keys.</li><li>API Gateway custom authorizers are used to secure endpoints against unauthorized access.</li></ul> |
 
 ---
 
@@ -126,7 +111,7 @@ The zendesk-aws-support project seamlessly integrates Zendesk with AWS, automati
 ```
 
 
-###  Project Index
+### Project Index
 <details open>
   <summary><b><code>ZENDESK-AWS-SUPPORT/</code></b></summary>
   <details> <!-- __root__ Submodule -->
@@ -318,19 +303,22 @@ The zendesk-aws-support project seamlessly integrates Zendesk with AWS, automati
 </details>
 
 ---
-##  Getting Started
+### Project Architecture 
+![architecture diagramm](assets/zendeskarch.jpeg)
+![xray trace](assets/zendesk-to-aws-trace.png)
 
-###  Prerequisites
+## Getting Started
+
+### Prerequisites
 
 Before getting started with zendesk-aws-support, ensure your runtime environment meets the following requirements:
 
-- **Programming Language:** Terraform
-- **Package Manager:** Pip
+- **Programming Language:** Terraform & Python 3
 
 
-###  Installation
+### Installation
 
-Install zendesk-aws-support using one of the following methods:
+Install zendesk-aws-support using the following methods:
 
 **Build from source:**
 
@@ -344,46 +332,108 @@ Install zendesk-aws-support using one of the following methods:
 ❯ cd zendesk-aws-support
 ```
 
+
 3. Install the project dependencies:
 
-
-**Using `pip`** &nbsp; [<img align="center" src="" />]()
-
 ```sh
-❯ echo 'INSERT-INSTALL-COMMAND-HERE'
+❯ fill the required variables in tofilll.auto.tfvars
+❯ make zip
+❯ make deploy
+```
+4. Retrieve the API gateway URL after deployment
+
+Fill in the form in /platform/tofill.auto.tfvars
+```
+region              = "eu-west-1"
+id_lookup_bucket    = "case-ids-lookup-<randomId>"
+zendesk_subdomain   = "your_subdomain" // For example "companyName"
+zendesk_admin_email = "your_admin_email" // For example "toto@amazon.com"
+zendesk_token       = "your_api_key"    // From Zendesk Admin Panel
+bearer_token        = "Bearer <your_token>" // token generated by you
 ```
 
+### Zendesk configuration
+
+#### 1.Create 3 custom fields
+First create 3 additional custom fields in the Zendesk form to gather data about Severity, Impacted Service and Category of the case: 
+- Field named AWS Service should be a drop down field with serviceCodes value (SageMaker)
+- Field named Category code should be a drop down field with all the possible categoryCodes for a give serviceCode (cf file in /zendeskResources directory).
+- Field named Severity should be a drop down field with ["urgent","high","normal","low","critical"]
+#### 2.Create Webhooks
+Then create 3 webhooks:
+- aws support - solved, endpoint = https://your_gateway_url/solved 
+- aws support - update, endpoint = https://your_gateway_url/update 
+- aws support - create , endpoint = https://your_gateway_url/create   
+
+⚠️ When creating the webhook select Authentication + Bearer token and add the bearer_token variable from /platform/tofill.auto.tfvars
 
 
-
-###  Usage
-Run zendesk-aws-support using the following command:
-**Using `pip`** &nbsp; [<img align="center" src="" />]()
-
-```sh
-❯ echo 'INSERT-RUN-COMMAND-HERE'
-```
-
-
-###  Testing
-Run the test suite using the following command:
-**Using `pip`** &nbsp; [<img align="center" src="" />]()
-
-```sh
-❯ echo 'INSERT-TEST-COMMAND-HERE'
-```
-
+####  3.Create Triggers
+From the Zendesk Admin Panel, create **3 triggers** (under *Objects and Rules*).
+##### create_ticket_trigger
+- **Name:** `create_ticket_trigger`
+- **Trigger Category:** Notifications
+- **Conditions:**
+  - `Ticket > Ticket + Is + Created`
+- **Actions:**
+  - `Notify by > Active Webhook + aws support - create`
+  - **Method:** `POST`
+  - **Data:**
+    ```json
+    { 
+      "zd_ticket_id": {{ticket.id}}, 
+      "zd_ticket_desc": "{{ticket.description}}",
+      "zd_ticket_requester_email": "{{ticket.requester.email}}",
+      "zd_ticket_latest_public_comment": "{{ticket.latest_public_comment_html}}",
+      "zd_ticket_impacted_service": "{{ticket.ticket_field_<Replace_with_custome_fieldID>}}",
+      "zd_ticket_category_code": "{{ticket.ticket_field_<Replace_with_custome_fieldID>}}",
+      "zd_ticket_sev_code": "{{ticket.ticket_field_<Replace_with_custome_fieldID>}}"
+    }
+    ```
 
 ---
-##  Project Roadmap
 
-- [X] **`Task 1`**: <strike>Implement feature one.</strike>
-- [ ] **`Task 2`**: Implement feature two.
-- [ ] **`Task 3`**: Implement feature three.
+##### update_ticket_trigger
+- **Name:** `update_ticket_trigger`
+- **Trigger Category:** Notifications
+- **Conditions:**
+  - `Ticket > Ticket + Is + Updated`
+  - `Ticket > Update Via + Is Not + Web service (API)`
+- **Actions:**
+  - `Notify by > Active Webhook + aws support - update`
+  - **Method:** `POST`
+  - **Data:**
+    ```json
+    { 
+      "zd_ticket_id": {{ticket.id}}, 
+      "zd_ticket_desc": "{{ticket.description}}",
+      "zd_ticket_requester_email": "{{ticket.requester.email}}",
+      "zd_ticket_latest_public_comment": "{{ticket.latest_public_comment_html}}"
+    }
+    ```
 
 ---
 
-##  Contributing
+##### solved_ticket_trigger
+- **Name:** `solved_ticket_trigger`
+- **Trigger Category:** Notifications
+- **Conditions:**
+  - `Ticket > Ticket Status + Changed To + Solved`
+- **Actions:**
+  - `Notify by > Active Webhook + aws support - solved`
+  - **Method:** `POST`
+  - **Data:**
+    ```json
+    { 
+      "zd_ticket_id": {{ticket.id}}, 
+      "zd_ticket_desc": "{{ticket.description}}",
+      "zd_ticket_requester_email": "{{ticket.requester.email}}",
+      "zd_ticket_latest_public_comment": "{{ticket.latest_public_comment_html}}"
+    }
+    ```
+---
+
+## 🔰 Contributing
 
 - **💬 [Join the Discussions](https://github.com/flozonn/zendesk-aws-support/discussions)**: Share your insights, provide feedback, or ask questions.
 - **🐛 [Report Issues](https://github.com/flozonn/zendesk-aws-support/issues)**: Submit bugs found or log feature requests for the `zendesk-aws-support` project.
@@ -426,14 +476,3 @@ Run the test suite using the following command:
 
 ---
 
-##  License
-
-This project is protected under the [SELECT-A-LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
-
----
-
-##  Acknowledgments
-
-- List any resources, contributors, inspiration, etc. here.
-
----
