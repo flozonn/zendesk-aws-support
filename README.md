@@ -39,7 +39,7 @@
 
 - [ Overview](#-overview)
 - [ Project Structure](#-project-structure)
-  - [ Project Index](#-project-index)
+  - [ Project Index](##-project-index)
   - [ Project Architecture](#-project-architecture)
 - [ Getting Started](#-getting-started)
   - [ Prerequisites](#-prerequisites)
@@ -109,7 +109,7 @@ The zendesk-aws-support project seamlessly integrates Zendesk with AWS, automati
 ```
 
 
-### Project Index
+###  Project Index
 <details open>
   <summary><b><code>ZENDESK-AWS-SUPPORT/</code></b></summary>
   <details> <!-- __root__ Submodule -->
