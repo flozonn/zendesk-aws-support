@@ -430,6 +430,13 @@ From the Zendesk Admin Panel, create **3 triggers** (under *Objects and Rules*).
     }
     ```
 ---
+### 4. Create a ticket
+
+Access the default form from the url 
+```
+https://<domain>.zendesk.com/hc/fr/requests/new?ticket_form_id=<form_id>
+```
+
 
 ## 🔰 Contributing
 
