@@ -21,10 +21,11 @@ def handle_add_communication(event_detail):
 
         # Get latest AWS Support message
         communications = support.describe_communications(caseId=case_id, maxResults=10)
+        is_solved = support.describe_cases(caseIdList=[case_id])['cases'][0]['status'] == 'resolved'
         latest_message = communications['communications'][0]['body']
 
         # Update the Zendesk ticket
-        update_zendesk_ticket(ticket_id=ticket_id, comment=latest_message)
+        update_zendesk_ticket(ticket_id=ticket_id, comment=latest_message, solve=is_solved)
         logger.info(f"✅ Added communication to Zendesk ticket {ticket_id}")
 
         return {
